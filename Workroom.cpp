@@ -454,9 +454,97 @@ glEnd();
 
 }
 
-void drawFurniture() {
+void dongho() {
+	// Wall Clock on Right Wall (centered at x = 2.79, y = 3.5, z = 0)
 
-  // Painting 3 on Front Wall (z = 5, right of the door), moved inside, adjusted height, and rotated
+    const float clockRadius = 0.4f; // Radius of the clock face
+    const float frameThickness = 0.05f; // Thickness of the frame
+    const float clockDepth = 0.03f; // Depth of the clock face
+    const int segments = 64; // Number of segments for smooth circle
+    const float PI = 3.14159265359f;
+    const float minuteAngle = -30.0f; // Fixed at 30 degrees (e.g., pointing at 6)
+    const float secondAngle = -90.0f; // Fixed at 90 degrees (e.g., pointing at 3)
+
+    glPushMatrix();
+    glTranslatef(-4.95f, 3.0f, 3.95f); // Center of the clock, 2.21 units from right wall (x = 5)
+    glRotatef(90.0f, 0, 1, 0); // Rotate 90 degrees around y-axis to face into room (normal along -x)
+    glRotatef(45.0f, 0, 0, 1); // Rotate clock 45 degrees counterclockwise around local z-axis
+
+    // Clock Frame (black torus, aligned with clock face)
+    setMaterial(0.1f, 0.1f, 0.1f, 1.0f); // Black
+    glPushMatrix();
+    // No additional rotation; torus is in xy-plane after transformations
+    glutSolidTorus(frameThickness / 2, clockRadius + frameThickness / 2, 16, segments); // Adjusted outer radius
+    glPopMatrix();
+
+    // Clock Face (white, circular, solid)
+    setMaterial(1.0f, 1.0f, 1.0f, 1.0f); // White
+    glBegin(GL_TRIANGLE_FAN); // Solid circular face
+    glNormal3f(1, 0, 0); // Normal facing into room (along -x)
+    glVertex3f(0.0f, 0.0f, 0.0f); // Center of the front face
+    for (int i = 0; i <= segments; i++) {
+        float angle = 2.0f * PI * i / segments;
+        float x = clockRadius * cosf(angle);
+        float y = clockRadius * sinf(angle);
+        glVertex3f(x, y, 0.0f); // Front face vertices
+    }
+    glEnd();
+
+    // Clock Face Back (optional, to close the solid)
+    glBegin(GL_TRIANGLE_FAN);
+    glNormal3f(-1, 0, 0); // Normal facing toward wall (along +x)
+    glVertex3f(0.0f, 0.0f, -clockDepth); // Center of the back face
+    for (int i = 0; i <= segments; i++) {
+        float angle = 2.0f * PI * (segments - i) / segments; // Reverse order
+        float x = clockRadius * cosf(angle);
+        float y = clockRadius * sinf(angle);
+        glVertex3f(x, y, -clockDepth); // Back face vertices
+    }
+    glEnd();
+
+    // Clock Face Side (to make it a solid cylinder)
+    glBegin(GL_QUAD_STRIP);
+    for (int i = 0; i <= segments; i++) {
+        float angle = 2.0f * PI * i / segments;
+        float x = clockRadius * cosf(angle);
+        float y = clockRadius * sinf(angle);
+        glNormal3f(cosf(angle), sinf(angle), 0); // Normal pointing outward radially
+        glVertex3f(x, y, 0.0f); // Front edge
+        glVertex3f(x, y, -clockDepth); // Back edge
+    }
+    glEnd();
+
+    // Minute Hand (black, 0.8 * clockRadius long, 0.02 wide)
+    setMaterial(0.1f, 0.1f, 0.1f, 1.0f); // Black
+    glPushMatrix();
+    glRotatef(minuteAngle, 0, 0, 1); // Fixed rotation
+    glBegin(GL_QUADS);
+    glNormal3f(-1, 0, 0); // Normal facing into room
+    glVertex3f(-0.01f, 0.0f, 0.01f); // Slightly above face
+    glVertex3f(0.01f, 0.0f, 0.01f);
+    glVertex3f(0.01f, 0.8f * clockRadius, 0.01f);
+    glVertex3f(-0.01f, 0.8f * clockRadius, 0.01f);
+    glEnd();
+    glPopMatrix();
+
+    // Second Hand (black, 0.9 * clockRadius long, 0.01 wide)
+    glPushMatrix();
+    glRotatef(secondAngle, 0, 0, 1); // Fixed rotation
+    glBegin(GL_QUADS);
+    glNormal3f(-1, 0, 0); // Normal facing into room
+    glVertex3f(-0.005f, 0.0f, 0.02f); // Slightly above minute hand
+    glVertex3f(0.005f, 0.0f, 0.02f);
+    glVertex3f(0.005f, 0.9f * clockRadius, 0.02f);
+    glVertex3f(-0.005f, 0.9f * clockRadius, 0.02f);
+    glEnd();
+    glPopMatrix();
+
+    glPopMatrix();
+
+}
+
+void tranhtreotuong() {
+	 // Painting 3 on Front Wall (z = 5, right of the door), moved inside, adjusted height, and rotated
 glPushMatrix();
 glTranslatef(4.95f, 2.5f, 3.99f);  // Di chuy?n g?c đ?n tâm tranh (gi?a x=3 và 4, y=2 và 3)
 glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Xoay 30 đ? quanh tr?c Y
@@ -537,8 +625,10 @@ glBegin(GL_QUADS);
     glVertex3f(-4.99f, 3.55f, 2.55f);
     glVertex3f(-4.99f, 3.55f, 2.5f);
 glEnd();
+}
 
-// Ceiling Lamp at the center of the ceiling (x = 0, z = 0, y = 3.9, hanging down to 3.7)
+void dentran() {
+	// Ceiling Lamp at the center of the ceiling (x = 0, z = 0, y = 3.9, hanging down to 3.7)
 setMaterial(1.0f, 1.0f, 0.8f, 1.0f); // Light yellow to simulate a glowing light
 
 const float radius = 0.3f; // Radius of the circular lamp
@@ -622,99 +712,11 @@ glEnd();
         glPopMatrix();
     }
 
-// ---------------- Desk ----------------
-// M?t bàn
-glPushMatrix();
-glTranslatef(0.0f, 0.8f, 0.0f);
-glScalef(2.1f, 0.1f, 1.0f); // From (1.8f, 0.1f, 1.0f) to (2.1f, 0.1f, 1.0f)
-setMaterial(0.5f, 0.3f, 0.2f);
-glutSolidCube(1);
-glPopMatrix();
-
-// 4 chân bàn
-float legHeight = 0.8f;
-float legOffsetX = 0.84f; // From 0.72f to 0.84f (80% of new half-width 1.05)
-float legOffsetZ = 0.45f;
-for (int dx = -1; dx <= 1; dx += 2) {
-    for (int dz = -1; dz <= 1; dz += 2) {
-        glPushMatrix();
-        glTranslatef(0.0f + dx * legOffsetX, legHeight / 2, 0.0f + dz * legOffsetZ);
-        glScalef(0.1f, legHeight, 0.1f);
-        setMaterial(0.5f, 0.3f, 0.2f);
-        glutSolidCube(1);
-        glPopMatrix();
-    }
 }
 
-// ---------------- Chair ----------------
-glPushMatrix();
-glTranslatef(0.0f, 0.4f, -1.0f);
 
-// M?t gh?
-glPushMatrix();
-glScalef(0.5f, 0.1f, 0.5f);
-setMaterial(0.3f, 0.3f, 0.3f);
-glutSolidCube(1);
-glPopMatrix();
-
-// T?a lưng
-glPushMatrix();
-glTranslatef(0.0f, 0.3f, -0.25f);
-glScalef(0.5f, 0.5f, 0.05f);
-setMaterial(0.3f, 0.3f, 0.3f);
-glutSolidCube(1);
-glPopMatrix();
-
-// 4 chân gh?
-float chairLegH = 0.4f;
-float chairOffset = 0.2f;
-for (int dx = -1; dx <= 1; dx += 2) {
-    for (int dz = -1; dz <= 1; dz += 2) {
-        glPushMatrix();
-        glTranslatef(dx * chairOffset, -chairLegH / 2, dz * chairOffset);
-        glScalef(0.05f, chairLegH, 0.05f);
-        setMaterial(0.3f, 0.3f, 0.3f);
-        glutSolidCube(1);
-        glPopMatrix();
-    }
-}
-glPopMatrix();
-
-// ---------------- Computer ----------------
-// Màn h?nh
-glPushMatrix();
-glTranslatef(0.0f, 1.1f, 0.4f);
-glRotatef(180.0f, 0, 1, 0);
-glScalef(0.6f, 0.4f, 0.05f);
-setMaterial(0.1f, 0.1f, 0.1f);
-glutSolidCube(1);
-glPopMatrix();
-
-// Thân máy (CPU)
-glPushMatrix();
-glTranslatef(0.0f, 0.85f, 0.4f);
-glScalef(0.2f, 0.1f, 0.1f);
-setMaterial(0.1f, 0.1f, 0.1f);
-glutSolidCube(1);
-glPopMatrix();
-
-// Bàn phím
-glPushMatrix();
-glTranslatef(0.0f, 0.88f, -0.1f);
-glScalef(0.5f, 0.05f, 0.2f);
-setMaterial(0.2f, 0.2f, 0.2f);
-glutSolidCube(1);
-glPopMatrix();
-
-glPushMatrix();
-glTranslatef(0.5f, 0.88f, -0.1f);
-glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Xoay 90 đ? quanh tr?c Y
-glScalef(0.1f, 0.05f, 0.05f);
-setMaterial(0.2f, 0.2f, 0.2f);
-glutSolidSphere(1, 10, 10);
-glPopMatrix();
-
-// ---------------- Small Cabinet with Drawers ----------------
+void tuhosonho() {
+	// ---------------- Small Cabinet with Drawers ----------------
 // Main Body
 glPushMatrix();
 glTranslatef(1.5f, 0.35f, 0.0f);
@@ -789,8 +791,10 @@ glTranslatef(1.5f, 0.70f, 0.0f);
 glScalef(bodyW, 0.02f, bodyD);
 glutSolidCube(1);
 glPopMatrix();
+}
 
- // T?A Đ? G?C C?A T?
+void tuhosogo() {
+	// T?A Đ? G?C C?A T?
 float closetX = 4.39f;
 float closetY = 1.01f;
 float closetZ = -4.60f;
@@ -839,9 +843,9 @@ glutSolidCube(1.0f);
 glPopMatrix();
 
 }
+}
 
-
-
+void tusach() {
 // Bookshelf on Back Wall near the Cabinet
 setMaterial(0.3f, 0.15f, 0.1f); // màu nâu đ?m
 glBegin(GL_QUADS);
@@ -1037,99 +1041,11 @@ float bookColors[4][3] = {
         glVertex3f(x_start, 0.01f, -4.69f);
     glEnd();
 }
-
-
-
-
-
-
-// Wall Clock on Right Wall (centered at x = 2.79, y = 3.5, z = 0)
-{
-    const float clockRadius = 0.4f; // Radius of the clock face
-    const float frameThickness = 0.05f; // Thickness of the frame
-    const float clockDepth = 0.03f; // Depth of the clock face
-    const int segments = 64; // Number of segments for smooth circle
-    const float PI = 3.14159265359f;
-    const float minuteAngle = -30.0f; // Fixed at 30 degrees (e.g., pointing at 6)
-    const float secondAngle = -90.0f; // Fixed at 90 degrees (e.g., pointing at 3)
-
-    glPushMatrix();
-    glTranslatef(-4.95f, 3.0f, 3.95f); // Center of the clock, 2.21 units from right wall (x = 5)
-    glRotatef(90.0f, 0, 1, 0); // Rotate 90 degrees around y-axis to face into room (normal along -x)
-    glRotatef(45.0f, 0, 0, 1); // Rotate clock 45 degrees counterclockwise around local z-axis
-
-    // Clock Frame (black torus, aligned with clock face)
-    setMaterial(0.1f, 0.1f, 0.1f, 1.0f); // Black
-    glPushMatrix();
-    // No additional rotation; torus is in xy-plane after transformations
-    glutSolidTorus(frameThickness / 2, clockRadius + frameThickness / 2, 16, segments); // Adjusted outer radius
-    glPopMatrix();
-
-    // Clock Face (white, circular, solid)
-    setMaterial(1.0f, 1.0f, 1.0f, 1.0f); // White
-    glBegin(GL_TRIANGLE_FAN); // Solid circular face
-    glNormal3f(1, 0, 0); // Normal facing into room (along -x)
-    glVertex3f(0.0f, 0.0f, 0.0f); // Center of the front face
-    for (int i = 0; i <= segments; i++) {
-        float angle = 2.0f * PI * i / segments;
-        float x = clockRadius * cosf(angle);
-        float y = clockRadius * sinf(angle);
-        glVertex3f(x, y, 0.0f); // Front face vertices
-    }
-    glEnd();
-
-    // Clock Face Back (optional, to close the solid)
-    glBegin(GL_TRIANGLE_FAN);
-    glNormal3f(-1, 0, 0); // Normal facing toward wall (along +x)
-    glVertex3f(0.0f, 0.0f, -clockDepth); // Center of the back face
-    for (int i = 0; i <= segments; i++) {
-        float angle = 2.0f * PI * (segments - i) / segments; // Reverse order
-        float x = clockRadius * cosf(angle);
-        float y = clockRadius * sinf(angle);
-        glVertex3f(x, y, -clockDepth); // Back face vertices
-    }
-    glEnd();
-
-    // Clock Face Side (to make it a solid cylinder)
-    glBegin(GL_QUAD_STRIP);
-    for (int i = 0; i <= segments; i++) {
-        float angle = 2.0f * PI * i / segments;
-        float x = clockRadius * cosf(angle);
-        float y = clockRadius * sinf(angle);
-        glNormal3f(cosf(angle), sinf(angle), 0); // Normal pointing outward radially
-        glVertex3f(x, y, 0.0f); // Front edge
-        glVertex3f(x, y, -clockDepth); // Back edge
-    }
-    glEnd();
-
-    // Minute Hand (black, 0.8 * clockRadius long, 0.02 wide)
-    setMaterial(0.1f, 0.1f, 0.1f, 1.0f); // Black
-    glPushMatrix();
-    glRotatef(minuteAngle, 0, 0, 1); // Fixed rotation
-    glBegin(GL_QUADS);
-    glNormal3f(-1, 0, 0); // Normal facing into room
-    glVertex3f(-0.01f, 0.0f, 0.01f); // Slightly above face
-    glVertex3f(0.01f, 0.0f, 0.01f);
-    glVertex3f(0.01f, 0.8f * clockRadius, 0.01f);
-    glVertex3f(-0.01f, 0.8f * clockRadius, 0.01f);
-    glEnd();
-    glPopMatrix();
-
-    // Second Hand (black, 0.9 * clockRadius long, 0.01 wide)
-    glPushMatrix();
-    glRotatef(secondAngle, 0, 0, 1); // Fixed rotation
-    glBegin(GL_QUADS);
-    glNormal3f(-1, 0, 0); // Normal facing into room
-    glVertex3f(-0.005f, 0.0f, 0.02f); // Slightly above minute hand
-    glVertex3f(0.005f, 0.0f, 0.02f);
-    glVertex3f(0.005f, 0.9f * clockRadius, 0.02f);
-    glVertex3f(-0.005f, 0.9f * clockRadius, 0.02f);
-    glEnd();
-    glPopMatrix();
-
-    glPopMatrix();
+	
 }
 
+void banghesofa() {
+	
 // Sofa along Left Wall
 glPushMatrix();
 glTranslatef(-4.55f, 0.6f, 0.0f); // Center at x=-4.55, y=0.6, z=0.0
@@ -1329,6 +1245,22 @@ for (int dx = -1; dx <= 1; dx += 2) {
 }
 
 glPopMatrix();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void tuhoso() {
+
 
 // Filing Cabinet near Left Wall (Updated Design)
 glPushMatrix();
@@ -1395,7 +1327,114 @@ for (int dx = -1; dx <= 1; dx += 2) {
 glPopMatrix();
 
 
-// Aquarium on Cabinet
+
+}
+
+void banlamviec() {
+	// ---------------- Desk ----------------
+// M?t bàn
+glPushMatrix();
+glTranslatef(0.0f, 0.8f, 0.0f);
+glScalef(2.1f, 0.1f, 1.0f); 
+setMaterial(0.5f, 0.3f, 0.2f);
+glutSolidCube(1);
+glPopMatrix();
+
+// 4 chân bàn
+float legHeight = 0.8f;
+float legOffsetX = 0.84f; // From 0.72f to 0.84f (80% of new half-width 1.05)
+float legOffsetZ = 0.45f;
+for (int dx = -1; dx <= 1; dx += 2) {
+    for (int dz = -1; dz <= 1; dz += 2) {
+        glPushMatrix();
+        glTranslatef(0.0f + dx * legOffsetX, legHeight / 2, 0.0f + dz * legOffsetZ);
+        glScalef(0.1f, legHeight, 0.1f);
+        setMaterial(0.5f, 0.3f, 0.2f);
+        glutSolidCube(1);
+        glPopMatrix();
+    }
+}
+
+// ---------------- Chair ----------------
+glPushMatrix();
+glTranslatef(0.0f, 0.4f, -1.0f);
+
+// M?t gh?
+glPushMatrix();
+glScalef(0.5f, 0.1f, 0.5f);
+setMaterial(0.3f, 0.3f, 0.3f);
+glutSolidCube(1);
+glPopMatrix();
+
+// T?a lưng
+glPushMatrix();
+glTranslatef(0.0f, 0.3f, -0.25f);
+glScalef(0.5f, 0.5f, 0.05f);
+setMaterial(0.3f, 0.3f, 0.3f);
+glutSolidCube(1);
+glPopMatrix();
+
+// 4 chân gh?
+float chairLegH = 0.4f;
+float chairOffset = 0.2f;
+for (int dx = -1; dx <= 1; dx += 2) {
+    for (int dz = -1; dz <= 1; dz += 2) {
+        glPushMatrix();
+        glTranslatef(dx * chairOffset, -chairLegH / 2, dz * chairOffset);
+        glScalef(0.05f, chairLegH, 0.05f);
+        setMaterial(0.3f, 0.3f, 0.3f);
+        glutSolidCube(1);
+        glPopMatrix();
+    }
+}
+glPopMatrix();
+
+// ---------------- Computer ----------------
+// Màn h?nh
+glPushMatrix();
+glTranslatef(0.0f, 1.12f, 0.4f);
+glRotatef(180.0f, 0, 1, 0);
+glScalef(0.7f, 0.45f, 0.05f);
+setMaterial(0.1f, 0.1f, 0.1f);
+glutSolidCube(1);
+glPopMatrix();
+
+// Đ? mân h?nh
+glPushMatrix();
+glTranslatef(0.0f, 0.85f, 0.4f);
+glScalef(0.2f, 0.1f, 0.1f);
+setMaterial(0.1f, 0.1f, 0.1f);
+glutSolidCube(1);
+glPopMatrix();
+
+// than may 
+glPushMatrix();
+glTranslatef(-0.80f, 1.1f, 0.0f);
+glScalef(0.3f, 0.6f, 0.75f);
+setMaterial(0.1f, 0.1f, 0.1f);
+glutSolidCube(1);
+glPopMatrix();
+
+// Bàn phím
+glPushMatrix();
+glTranslatef(0.0f, 0.88f, -0.1f);
+glScalef(0.5f, 0.05f, 0.2f);
+setMaterial(0.2f, 0.2f, 0.2f);
+glutSolidCube(1);
+glPopMatrix();
+
+// chu?t 
+glPushMatrix();
+glTranslatef(0.5f, 0.88f, -0.1f);
+glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Xoay 90 đ? quanh tr?c Y
+glScalef(0.1f, 0.05f, 0.05f);
+setMaterial(0.2f, 0.2f, 0.2f);
+glutSolidSphere(1, 10, 10);
+glPopMatrix();
+} 
+
+void becacanh() {
+	// Aquarium on Cabinet
 glPushMatrix();
 glTranslatef(-4.38f, -0.145f, 4.75f); // Góc ph?ng
 
@@ -1422,11 +1461,7 @@ glScalef(1.2f, 0.05f, 0.4f);
 setMaterial(0.1f, 0.1f, 0.1f); // Đen
 glutSolidCube(1.0f);
 glPopMatrix();
-
 glPopMatrix(); 
-
-
-
 }
 
 void display() {
@@ -1445,8 +1480,16 @@ void display() {
 
     initLighting();
     drawRoom();
-    drawFurniture();
-
+    banlamviec();
+    tranhtreotuong();
+    becacanh();
+    dongho();
+    dentran();
+    tuhosonho();
+    tuhosogo();
+    tusach();
+    banghesofa();
+    tuhoso();
     glutSwapBuffers();
 }
 
@@ -1505,9 +1548,15 @@ case 'i': case 'I': light0_dir[2] -= 0.1f; break; // Decrease z direction
 
         case 'a': angleY -= rotateStep; break;
         case 'd': angleY += rotateStep; break;
-        case 'w': angleX -= rotateStep; break;
-        case 's': angleX += rotateStep; break;
+    
 
+       case 'w':
+    camY += moveStep; // Di chuy?n camera lên trên
+    break;
+        case 's':
+    camY -= moveStep; // Di chuy?n camera xu?ng dư?i
+    break;
+            break;
         case 'x':
             camX += moveStep * sin(radY);
             camZ += moveStep * cos(radY);
